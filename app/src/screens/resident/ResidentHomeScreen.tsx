@@ -13,6 +13,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import type { RootState } from '@redux/store';
 import type { ResidentStackParamList } from '@typings/navigation.types';
 import { useGetAnnouncementsQuery } from '@redux/api/announcementsApi';
+import { useGetEventsQuery } from '@redux/api/eventsApi';
 import type { Announcement } from '@typings/models.types';
 import { Routes } from '@constants/routes';
 import { Colors, Spacing, FontSize, FontWeight, Radius, Shadow } from '@constants/theme';
@@ -77,12 +78,14 @@ const ResidentHomeScreen = () => {
   const user = useSelector((s: RootState) => s.auth.user);
 
   const { data: announcementsData } = useGetAnnouncementsQuery({});
+  const { data: eventsData } = useGetEventsQuery({ limit: 1, upcoming: true });
 
   const firstName = user?.name?.split(' ')[0] ?? 'Resident';
   const hour = new Date().getHours();
   const greeting =
     hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
   const previewAnnouncements = announcementsData?.announcements.slice(0, 3) ?? [];
+  const nextEvent = eventsData?.events[0] ?? null;
 
   return (
     <ScreenWrapper scrollable padHorizontal={false}>
@@ -202,28 +205,45 @@ const ResidentHomeScreen = () => {
           </TouchableOpacity>
         </View>
         <AppCard shadow="sm" style={styles.card}>
-          <View style={styles.eventRow}>
-            <View style={styles.eventDateBox}>
-              <AppText variant="h3" weight="bold" color="primary">20</AppText>
-              <AppText variant="caption" color="primary">APR</AppText>
-            </View>
-            <View style={{ flex: 1, marginLeft: Spacing.md }}>
-              <AppText variant="bodySmall" weight="semibold">Holi Celebration</AppText>
-              <View style={styles.eventMeta}>
-                <Ionicons name="location-outline" size={12} color={Colors.textSecondary} />
-                <AppText variant="caption" color="textSecondary" style={{ marginLeft: 2 }}>
-                  Community Garden
-                </AppText>
-                <Ionicons name="time-outline" size={12} color={Colors.textSecondary} style={{ marginLeft: 8 }} />
-                <AppText variant="caption" color="textSecondary" style={{ marginLeft: 2 }}>
-                  6:00 PM
-                </AppText>
+          {nextEvent ? (
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => navigation.navigate(Routes.EVENT_DETAIL, { eventId: nextEvent.id })}
+            >
+              <View style={styles.eventRow}>
+                <View style={styles.eventDateBox}>
+                  <AppText variant="h3" weight="bold" color="primary">
+                    {new Date(nextEvent.eventDate).getDate()}
+                  </AppText>
+                  <AppText variant="caption" color="primary">
+                    {new Date(nextEvent.eventDate).toLocaleString('en', { month: 'short' }).toUpperCase()}
+                  </AppText>
+                </View>
+                <View style={{ flex: 1, marginLeft: Spacing.md }}>
+                  <AppText variant="bodySmall" weight="semibold">{nextEvent.title}</AppText>
+                  <View style={styles.eventMeta}>
+                    <Ionicons name="location-outline" size={12} color={Colors.textSecondary} />
+                    <AppText variant="caption" color="textSecondary" style={{ marginLeft: 2 }}>
+                      {nextEvent.venue}
+                    </AppText>
+                    <Ionicons name="time-outline" size={12} color={Colors.textSecondary} style={{ marginLeft: 8 }} />
+                    <AppText variant="caption" color="textSecondary" style={{ marginLeft: 2 }}>
+                      {new Date(nextEvent.eventDate).toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit' })}
+                    </AppText>
+                  </View>
+                  <View style={[styles.tag, styles.eventTag]}>
+                    <AppText variant="caption" style={{ color: '#D97706' }}>
+                      {nextEvent.rsvpCount} going
+                    </AppText>
+                  </View>
+                </View>
               </View>
-              <View style={[styles.tag, styles.eventTag]}>
-                <AppText variant="caption" style={{ color: '#D97706' }}>Festival</AppText>
-              </View>
-            </View>
-          </View>
+            </TouchableOpacity>
+          ) : (
+            <AppText variant="bodySmall" color="textSecondary" center style={{ paddingVertical: Spacing.md }}>
+              No upcoming events
+            </AppText>
+          )}
         </AppCard>
 
         {/* ── Community Chat ── */}
