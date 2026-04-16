@@ -37,9 +37,10 @@ export interface Announcement {
 
 export interface Complaint {
   id: string;
-  colonyId: string;
+  colonyId?: string;
   raisedBy: string;
   raisedByName: string;
+  flatNumber: string;
   title: string;
   description: string;
   category: 'maintenance' | 'security' | 'cleanliness' | 'other';
@@ -48,51 +49,37 @@ export interface Complaint {
   updatedAt: string;
 }
 
-export interface Message {
-  id: string;
-  roomId: string;
-  colonyId: string;
-  senderId: string;
-  senderName: string;
-  content: string;
-  type: 'text' | 'image' | 'file';
-  mediaUrl?: string;
-  createdAt: string;
-}
-
 export interface Visitor {
   id: string;
-  colonyId: string;
-  residentId: string;
-  residentName: string;
   visitorName: string;
   purpose: string;
-  otp: string;
-  status: 'pending' | 'approved' | 'entered' | 'exited' | 'expired';
   vehicleNumber?: string;
+  otp?: string;
+  otpExpiresAt: string;
+  status: 'pending' | 'approved' | 'entered' | 'exited' | 'expired';
   entryTime?: string;
   exitTime?: string;
   createdAt: string;
+  residentId: string;
+  residentName: string;
+  flatNumber: string;
 }
 
 export interface Event {
   id: string;
-  colonyId: string;
   title: string;
   description: string;
   venue: string;
   eventDate: string;
-  createdBy: string;
-  rsvpCount: number;
-  hasRsvped: boolean;
   createdAt: string;
+  createdBy: string;
+  createdByName: string;
+  rsvpCount: number;
+  userRsvped: boolean;
 }
 
 export interface MarketplaceListing {
   id: string;
-  colonyId: string;
-  sellerId: string;
-  sellerName: string;
   title: string;
   description: string;
   price: number;
@@ -100,15 +87,42 @@ export interface MarketplaceListing {
   imageUrls: string[];
   status: 'active' | 'sold' | 'removed';
   createdAt: string;
+  sellerId: string;
+  sellerName: string;
+  flatNumber: string;
+  sellerAvatar?: string;
 }
 
 export interface SosAlert {
   id: string;
-  colonyId: string;
   userId: string;
   userName: string;
-  latitude: number;
-  longitude: number;
+  flatNumber: string;
+  latitude?: number;
+  longitude?: number;
   status: 'active' | 'resolved';
   createdAt: string;
+  resolvedAt?: string;
+}
+
+export interface ChatRoom {
+  id: string;
+  name: string;
+  type: 'general' | 'maintenance' | 'events' | 'private';
+  createdAt: string;
+  lastMessage?: string;
+  lastMessageAt?: string;
+  lastSenderName?: string;
+}
+
+export interface Message {
+  id: string;
+  roomId: string;
+  content?: string;
+  type: 'text' | 'image' | 'file';
+  mediaUrl?: string;
+  createdAt: string;
+  senderId: string;
+  senderName: string;
+  senderAvatar?: string;
 }
