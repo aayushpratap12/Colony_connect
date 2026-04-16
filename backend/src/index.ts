@@ -15,6 +15,13 @@ import { errorHandler } from './middlewares/error.middleware';
 
 import authRoutes          from './routes/auth.routes';
 import announcementsRoutes from './routes/announcements.routes';
+import complaintsRoutes    from './routes/complaints.routes';
+import visitorsRoutes      from './routes/visitors.routes';
+import eventsRoutes        from './routes/events.routes';
+import marketplaceRoutes   from './routes/marketplace.routes';
+import sosRoutes           from './routes/sos.routes';
+import chatRoutes          from './routes/chat.routes';
+import { registerSocketHandlers } from './services/socket';
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -57,6 +64,12 @@ app.get('/health', (_req, res) => {
 
 app.use('/api/auth',          authRoutes);
 app.use('/api/announcements', announcementsRoutes);
+app.use('/api/complaints',    complaintsRoutes);
+app.use('/api/visitors',      visitorsRoutes);
+app.use('/api/events',        eventsRoutes);
+app.use('/api/marketplace',   marketplaceRoutes);
+app.use('/api/sos',           sosRoutes);
+app.use('/api/chat',          chatRoutes);
 
 // ─── Error handler (must be last) ─────────────────────────────────────────────
 app.use(errorHandler);
@@ -66,6 +79,7 @@ const start = async () => {
   await connectDb();
   await connectRedis();
   await io.adapter(createAdapter(pubClient, subClient));
+  registerSocketHandlers(io);
   httpServer.listen(env.PORT, () => {
     console.log(`[Server] Running on port ${env.PORT} (${env.NODE_ENV})`);
   });
