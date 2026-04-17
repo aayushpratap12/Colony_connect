@@ -21,6 +21,7 @@ import eventsRoutes        from './routes/events.routes';
 import marketplaceRoutes   from './routes/marketplace.routes';
 import sosRoutes           from './routes/sos.routes';
 import chatRoutes          from './routes/chat.routes';
+import residentsRoutes     from './routes/residents.routes';
 import { registerSocketHandlers } from './services/socket';
 
 const app = express();
@@ -70,6 +71,7 @@ app.use('/api/events',        eventsRoutes);
 app.use('/api/marketplace',   marketplaceRoutes);
 app.use('/api/sos',           sosRoutes);
 app.use('/api/chat',          chatRoutes);
+app.use('/api/residents',     residentsRoutes);
 
 // ─── Error handler (must be last) ─────────────────────────────────────────────
 app.use(errorHandler);

@@ -5,6 +5,7 @@ import type { ApiResponse } from '@typings/api.types';
 interface ListParams {
   cursor?: string;
   limit?: number;
+  status?: string;
 }
 
 interface ListResponse {
@@ -18,27 +19,17 @@ interface CreateParams {
   vehicleNumber?: string;
 }
 
-interface VerifyOtpResult {
-  id: string;
-  visitorName: string;
-  purpose: string;
-  vehicleNumber?: string;
-  status: string;
-  residentName: string;
-  flatNumber: string;
-  residentId: string;
-}
 
 export const visitorsApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
 
     getVisitors: build.query<ListResponse, ListParams>({
-      query: ({ cursor, limit = 20 } = {}) => ({
+      query: ({ cursor, limit = 20, status } = {}) => ({
         url: '/visitors',
-        params: { cursor, limit },
+        params: { cursor, limit, status },
       }),
       transformResponse: (res: ApiResponse<ListResponse>) => res.data,
-      serializeQueryArgs: ({ endpointName }) => endpointName,
+      serializeQueryArgs: ({ endpointName, queryArgs }) => `${endpointName}:${queryArgs.status ?? 'all'}`,
       merge: (cache, incoming, { arg }) => {
         if (!arg.cursor) return incoming;
         cache.visitors.push(...incoming.visitors);
@@ -55,9 +46,9 @@ export const visitorsApi = baseApi.injectEndpoints({
       invalidatesTags: ['Visitors'],
     }),
 
-    verifyVisitorOtp: build.query<VerifyOtpResult, string>({
+    verifyVisitorOtp: build.query<Visitor, string>({
       query: (otp) => `/visitors/verify/${otp}`,
-      transformResponse: (res: ApiResponse<VerifyOtpResult>) => res.data,
+      transformResponse: (res: ApiResponse<Visitor>) => res.data,
     }),
 
     approveVisitor: build.mutation<{ id: string; status: string }, string>({
